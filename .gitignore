@@ -1,0 +1,12 @@
+# .gitignore
+node_modules/
+.next/
+dist/
+build/
+.env*
+npm-debug.log*
+.DS_Store
+.idea/
+localhost.pem
+localhost-key.pem
+
