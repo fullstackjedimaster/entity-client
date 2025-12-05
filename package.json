@@ -1,8 +1,8 @@
 {
-  "name": "crud-client",
+  "name": "entity-client",
   "version": "0.1.0",
   "private": true,
-  "description": "Next.js CRUD Client with Auth0, dynamic forms, and PostgreSQL backend",
+  "description": "Next.js entity Client with Auth0, dynamic forms, and PostgreSQL backend",
   "scripts": {
     "dev:https": "cross-env HTTPS=true SSL_CRT_FILE=localhost.pem SSL_KEY_FILE=localhost-key.pem next dev -p 3003",
     "build": "next build",
