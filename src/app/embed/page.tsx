@@ -12,6 +12,9 @@ type EmbedConfig = {
     apiBase: string;
 };
 
+export const dynamic = 'force-dynamic';
+
+
 export default function EmbedPage() {
     const searchParams = useSearchParams();
     const entity = searchParams.get("entity") ?? "";

@@ -16,6 +16,8 @@ interface ManageResponse {
     result?: ManageResultPayload;
     message?: string;
 }
+export const dynamic = 'force-dynamic';
+
 
 /**
  * Iframe embed for ec-view:
