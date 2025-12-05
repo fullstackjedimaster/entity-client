@@ -1,11 +1,9 @@
 // src/app/embed/page.tsx
-"use client";
-
-export const dynamic = 'force-dynamic';
-
-import { useSearchParams } from 'next/navigation';
+'use client';
 
 import { useEffect, useState, useCallback } from "react";
+
+export const dynamic = 'force-dynamic';
 
 import EntityComponent from "@/components/EntityComponent/EntityComponent";
 import { settings } from "@/lib/settings";

@@ -1,11 +1,12 @@
 // src/app/embed/entity/page.tsx
-"use client";
+'use client';
+
+import { useSearchParams } from 'next/navigation';
+import React, { useEffect, useState } from "react";
 
 export const dynamic = 'force-dynamic';
 
-import { useSearchParams } from 'next/navigation';
 
-import React, { useEffect, useState } from "react";
 
 import EntityComponent from "@/components/EntityComponent/EntityComponent";
 import { apiFetchRaw } from "@/lib/api";
