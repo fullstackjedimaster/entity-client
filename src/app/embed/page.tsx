@@ -1,8 +1,12 @@
 // src/app/embed/page.tsx
 "use client";
 
+export const dynamic = 'force-dynamic';
+
+import { useSearchParams } from 'next/navigation';
+
 import { useEffect, useState, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+
 import EntityComponent from "@/components/EntityComponent/EntityComponent";
 import { settings } from "@/lib/settings";
 
@@ -11,8 +15,6 @@ type EmbedConfig = {
     schema: string | null;
     apiBase: string;
 };
-
-export const dynamic = 'force-dynamic';
 
 
 export default function EmbedPage() {

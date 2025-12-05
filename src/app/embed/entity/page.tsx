@@ -1,8 +1,12 @@
 // src/app/embed/entity/page.tsx
 "use client";
 
+export const dynamic = 'force-dynamic';
+
+import { useSearchParams } from 'next/navigation';
+
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+
 import EntityComponent from "@/components/EntityComponent/EntityComponent";
 import { apiFetchRaw } from "@/lib/api";
 
@@ -16,8 +20,6 @@ interface ManageResponse {
     result?: ManageResultPayload;
     message?: string;
 }
-export const dynamic = 'force-dynamic';
-
 
 /**
  * Iframe embed for ec-view:
