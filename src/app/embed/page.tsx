@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from "react";
-
+import { useSearchParams } from "next/navigation";
 export const dynamic = 'force-dynamic';
 
 import EntityComponent from "@/components/EntityComponent/EntityComponent";
