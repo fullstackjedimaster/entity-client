@@ -1,7 +1,7 @@
 // src/app/embed/page.tsx
 'use client';
 
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 export const dynamic = 'force-dynamic';
 
