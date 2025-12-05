@@ -1,11 +1,8 @@
-// src/app/embed/entity/page.tsx
 'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 export const dynamic = 'force-dynamic';
-
-
 
 import EntityComponent from "@/components/EntityComponent/EntityComponent";
 import { apiFetchRaw } from "@/lib/api";
@@ -22,13 +19,10 @@ interface ManageResponse {
 }
 
 /**
- * Iframe embed for ec-view:
- * - Query params: ?entity=employee&id=<uuid>&token=<jwt>&schema=<schema>
- * - OR waits for ENTITY_FORM_SET_TOKEN to set window.__ENTITY_CORE_JWT__
- * - If id is present, loads the row first, then renders EntityComponent in edit mode.
- * - If no id, renders EntityComponent in create mode.
+ * Inner component that actually uses useSearchParams.
+ * Wrapped in <Suspense> by the page component below.
  */
-export default function EmbedEntityPage() {
+function EmbedEntityContent() {
     const searchParams = useSearchParams();
 
     const entity = searchParams.get("entity") ?? "";
@@ -232,5 +226,24 @@ export default function EmbedEntityPage() {
         <div className="p-4">
             <EntityComponent entity={entity} initialValues={effectiveInitial ?? undefined} />
         </div>
+    );
+}
+
+/**
+ * Page component that wraps the content in Suspense so Next is happy
+ * about useSearchParams() bailouts.
+ */
+export default function EmbedEntityPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="p-4 text-sm">
+                    <h1 className="text-lg font-semibold mb-2">Entity form</h1>
+                    <p className="text-gray-600">Loading…</p>
+                </div>
+            }
+        >
+            <EmbedEntityContent />
+        </Suspense>
     );
 }

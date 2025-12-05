@@ -1,7 +1,11 @@
-// src/app/embed/page.tsx
 'use client';
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, {
+    Suspense,
+    useEffect,
+    useState,
+    useCallback,
+} from "react";
 import { useSearchParams } from "next/navigation";
 export const dynamic = 'force-dynamic';
 
@@ -14,8 +18,11 @@ type EmbedConfig = {
     apiBase: string;
 };
 
-
-export default function EmbedPage() {
+/**
+ * Inner component that uses useSearchParams and all the embed logic.
+ * Wrapped in <Suspense> by the page component below.
+ */
+function EmbedContent() {
     const searchParams = useSearchParams();
     const entity = searchParams.get("entity") ?? "";
     const id = searchParams.get("id"); // optional, edit mode
@@ -37,9 +44,10 @@ export default function EmbedPage() {
             return;
         }
 
-        const apiBase = (qsApiBase && qsApiBase.trim().length > 0)
-            ? qsApiBase.trim()
-            : settings.API_BASE_URL;
+        const apiBase =
+            qsApiBase && qsApiBase.trim().length > 0
+                ? qsApiBase.trim()
+                : settings.API_BASE_URL;
 
         if (qsToken && qsToken.trim()) {
             window.__ENTITY_CORE_JWT__ = qsToken.trim();
@@ -49,11 +57,14 @@ export default function EmbedPage() {
             (window as any).__ENTITY_CORE_SCHEMA__ = qsSchema.trim();
         }
 
-        setConfig((prev) => prev ?? {
-            token: qsToken ? qsToken.trim() : null,
-            schema: qsSchema ? qsSchema.trim() : null,
-            apiBase,
-        });
+        setConfig((prev) =>
+            prev ??
+            {
+                token: qsToken ? qsToken.trim() : null,
+                schema: qsSchema ? qsSchema.trim() : null,
+                apiBase,
+            },
+        );
 
         setReady(true);
     }, [searchParams]);
@@ -86,14 +97,16 @@ export default function EmbedPage() {
 
             // New contract: ENTITY_FORM_SET_CONFIG
             if (msg.type === "ENTITY_FORM_SET_CONFIG") {
-                const token = typeof msg.token === "string" && msg.token.trim()
-                    ? msg.token.trim()
-                    : null;
-                const schema = typeof msg.schema === "string" && msg.schema.trim()
-                    ? msg.schema.trim()
-                    : null;
+                const token =
+                    typeof msg.token === "string" && msg.token.trim()
+                        ? msg.token.trim()
+                        : null;
+                const schema =
+                    typeof msg.schema === "string" && msg.schema.trim()
+                        ? msg.schema.trim()
+                        : null;
                 const apiBase =
-                    (typeof msg.apiBase === "string" && msg.apiBase.trim().length > 0)
+                    typeof msg.apiBase === "string" && msg.apiBase.trim().length > 0
                         ? msg.apiBase.trim()
                         : settings.API_BASE_URL;
 
@@ -111,14 +124,16 @@ export default function EmbedPage() {
 
             // Legacy contract: CRUD_EMBED_CONFIG
             if (msg.type === "CRUD_EMBED_CONFIG") {
-                const token = typeof msg.token === "string" && msg.token.trim()
-                    ? msg.token.trim()
-                    : null;
-                const schema = typeof msg.schema === "string" && msg.schema.trim()
-                    ? msg.schema.trim()
-                    : null;
+                const token =
+                    typeof msg.token === "string" && msg.token.trim()
+                        ? msg.token.trim()
+                        : null;
+                const schema =
+                    typeof msg.schema === "string" && msg.schema.trim()
+                        ? msg.schema.trim()
+                        : null;
                 const apiBase =
-                    (typeof msg.apiBase === "string" && msg.apiBase.trim().length > 0)
+                    typeof msg.apiBase === "string" && msg.apiBase.trim().length > 0
                         ? msg.apiBase.trim()
                         : settings.API_BASE_URL;
 
@@ -195,5 +210,24 @@ export default function EmbedPage() {
         <div className="w-full h-full p-4">
             <EntityComponent entity={entity} />
         </div>
+    );
+}
+
+/**
+ * Page component that wraps the content in Suspense so Next is
+ * satisfied with useSearchParams() bailouts.
+ */
+export default function EmbedPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="p-4 text-sm">
+                    <h1 className="font-semibold mb-2">EntityCore Embed</h1>
+                    <p>Loading…</p>
+                </div>
+            }
+        >
+            <EmbedContent />
+        </Suspense>
     );
 }
