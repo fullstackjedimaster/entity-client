@@ -1,0 +1,17 @@
+services:
+  entity-client:
+    container_name: entity-client
+    build:
+      context: ../
+      dockerfile: deploy/docker/entity-client/Dockerfile
+      args:
+        NEXT_PUBLIC_EC_API_BASE_URL: /api
+        NEXT_PUBLIC_EC_DEFAULT_JWT: ${NEXT_PUBLIC_EC_DEFAULT_JWT:-}
+        API_PROXY_TARGET: ${API_PROXY_TARGET:-http://host.docker.internal:8003}
+    restart: unless-stopped
+    env_file:
+      - ./env/entity-client.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:3005:3000"

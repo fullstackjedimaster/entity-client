@@ -10,3 +10,5 @@ npm-debug.log*
 localhost.pem
 localhost-key.pem
 
+deploy/.env
+deploy/env/*.env
