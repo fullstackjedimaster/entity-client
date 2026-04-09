@@ -14,4 +14,4 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
-      - "127.0.0.1:3005:3000"
+      - "127.0.0.1:3005:3005"

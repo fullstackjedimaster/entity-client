@@ -16,7 +16,7 @@ app.prepare().then(() => {
     createServer(httpsOptions, (req, res) => {
         const parsedUrl = parse(req.url, true);
         handle(req, res, parsedUrl);
-    }).listen(3003, (err) => {
+    }).listen(3005, (err) => {
         if (err) throw err;
         console.log('✅ HTTPS dev server ready at https://localhost:3003');
     });
