@@ -44,7 +44,7 @@ const LOCAL_EMPLOYEE_METADATA = {
 
 export default function EntityDemoPage() {
     const [jsonText, setJsonText] = useState<string>(DEFAULT_JSON);
-    const [templateOverride, setTemplateOverride] = useState<any | null>(null);
+    const [entityJsonOverride, setEntityJsonOverride] = useState<any | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     function handleRenderClick() {
@@ -61,10 +61,10 @@ export default function EntityDemoPage() {
                 throw new Error('Demo expects a top-level "employee" key with an object value.');
             }
 
-            setTemplateOverride(parsed);
+            setEntityJsonOverride(parsed);
         } catch (e: any) {
             setError(e.message || "Invalid JSON");
-            setTemplateOverride(null);
+            setEntityJsonOverride(null);
         }
     }
 
@@ -80,9 +80,9 @@ export default function EntityDemoPage() {
             <EmbedHeightReporter />
 
             <div className="w-full max-w-5xl p-6 space-y-6">
-                <h1 className="text-2xl font-bold">EntityComponent JSON Template Demo</h1>
+                <h1 className="text-2xl font-bold">EntityComponent JSON Demo</h1>
                 <p className="text-sm text-gray-600">
-                    Edit the JSON template below and click <strong>Render Form</strong> to see the
+                    Edit the JSON below and click <strong>Render Form</strong> to see the
                     real <code className="mx-1">EntityComponent</code> render a dynamic form for the
                     <strong> "employee"</strong> entity. This demo does not talk to{" "}
                     <code>ec-model</code>; it just uses the JSON and local metadata.
@@ -116,7 +116,7 @@ export default function EntityDemoPage() {
                         <h2 className="text-lg font-semibold mb-4">Rendered EntityComponent</h2>
                         {templateOverride ? (
                             <EntityComponent
-                                entity="employee"
+                                entityName="employee"
                                 templateOverride={templateOverride}
                                 metadata={LOCAL_EMPLOYEE_METADATA}
                                 onSubmit={handleSubmit}

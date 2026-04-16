@@ -30,7 +30,7 @@ export default function FieldObject({
 
                 // Array subform
                 if (Array.isArray(val)) {
-                    const rowTemplate = (val[0] ?? {}) as Record<string, unknown>;
+                    const rowEntityJson = (val[0] ?? {}) as Record<string, unknown>;
                     const rows = Array.isArray(data[key as keyof typeof data])
                         ? (data[key as keyof typeof data] as Record<string, unknown>[])
                         : [];
@@ -39,7 +39,7 @@ export default function FieldObject({
                         <FieldArray
                             key={key}
                             label={key}
-                            templateRow={rowTemplate}
+                            entityRow={rowEntityJson}
                             rows={rows}
                             path={p}
                             updateField={updateField}

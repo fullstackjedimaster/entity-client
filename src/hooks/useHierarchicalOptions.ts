@@ -12,7 +12,7 @@ import { useOptions } from "./useOptions";
  *   - The next level's filter will include { [prevField]: selectedValue }
  */
 export function useHierarchicalOptions(
-    baseEntity: string,
+    baseEntityName: string,
     hierarchyFields: string[],
     valueCol = "id",
     labelCol = "name"
@@ -32,7 +32,7 @@ export function useHierarchicalOptions(
         }
 
         const { options, isLoading, error } = useOptions(
-            baseEntity,
+            baseEntityName,
             valueCol,
             labelCol,
             filter

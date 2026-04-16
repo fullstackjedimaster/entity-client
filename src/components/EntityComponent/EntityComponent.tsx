@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useFormMetadata } from "@/hooks/useFormMetadata";
-import { useEntityTemplate } from "@/hooks/useEntityTemplate";
+import { useEntityJson } from "@/hooks/useEntityJson";
 import { useSaveEntity } from "@/hooks/useSaveEntity";
 import { useHierarchicalOptions } from "@/hooks/useHierarchicalOptions";
 import { useAuthInfo } from "@/hooks/useAuthInfo";
@@ -20,24 +20,24 @@ type OptionsProviderResult = {
 };
 
 type OptionsProviderFn = (params: {
-    entity: string;
+    entityName: string;
     field: string;
     levelIndex: number;
     selectedValues: Record<string, string | null>;
 }) => OptionsProviderResult;
 
 type EntityComponentProps = {
-    entity: string;
+    entityName: string;
 
     /**
-     * Optional template override.
-     * If provided, this will be used instead of the template fetched by useEntityTemplate().
+     * Optional Json override.
+     * If provided, this will be used instead of the Json fetched by useEntityJson().
      * Expected shape:
      * {
      *   "<entityName>": { ...structure... }
      * }
      */
-    templateOverride?: any;
+    entityJsonOverride?: any;
 
     /**
      * Optional metadata override.
@@ -68,8 +68,8 @@ type EntityComponentProps = {
 };
 
 export default function EntityComponent({
-                                            entity,
-                                            templateOverride,
+                                            entityName,
+                                            entityJsonOverride,
                                             metadata: metadataOverride,
                                             onSubmit,
                                             optionsProvider,
@@ -90,14 +90,14 @@ export default function EntityComponent({
     const metaLoading = metadataOverride ? false : metaLoadingHook;
 
     // If templateOverride is provided, don't fetch via hook (pass undefined)
-    const entityForTemplateHook = templateOverride ? undefined : entity;
+    const entityForEntityJsonHook = entityJsonOverride ? undefined : entity;
     const {
-        template: fetchedTemplate,
-        loading: tmplLoadingHook,
-    } = useEntityTemplate(entityForTemplateHook);
+        entityJson: fetchedEntityJson,
+        loading: entityJsonLoadingHook,
+    } = useEntityJson(entityForEntityJsonHook);
 
-    const effectiveTemplate = templateOverride ?? fetchedTemplate;
-    const tmplLoading = templateOverride ? false : tmplLoadingHook;
+    const effectiveEntityJson = entityJsonOverride ?? fetchedEntityJson;
+    const entityJsonLoading = entityJsonOverride ? false : entityJsonLoadingHook;
 
     const [formValues, setFormValues] = useState<FormValues>({});
     const [addButtonEnabled, setAddButtonEnabled] = useState<Record<string, boolean>>({});
@@ -130,7 +130,7 @@ export default function EntityComponent({
 
     // If an external optionsProvider is given, do NOT fetch via useHierarchicalOptions
     const defaultHier = useHierarchicalOptions(
-        entity,
+        entityName,
         optionsProvider ? [] : hierarchyFields, // empty list → no network / no-op
         "id",
         "name"
@@ -140,7 +140,7 @@ export default function EntityComponent({
         ? {
             hooks: hierarchyFields.map((field: string, index: number) => {
                 const res = optionsProvider({
-                    entity,
+                    entityName,
                     field,
                     levelIndex: index,
                     selectedValues,
@@ -170,8 +170,8 @@ export default function EntityComponent({
     // Determine data shape
     // ---------------------------------------------------------------------
 
-    const shape = effectiveTemplate
-        ? effectiveTemplate[entity] // template (override or fetched) first
+    const shape = effectiveEntityJson
+        ? effectiveEntityJson[entityName] // template (override or fetched) first
         : buildShapeFromMetadata(metadata); // fallback shape
 
     // ---------------------------------------------------------------------
@@ -194,8 +194,8 @@ export default function EntityComponent({
         }
     }, [initialValues, shape, initialized]);
 
-    if (metaLoading || tmplLoading) return <div>Loading form schema…</div>;
-    if (!shape) return <div>No metadata or template available.</div>;
+    if (metaLoading || entityJsonLoading) return <div>Loading form schema…</div>;
+    if (!shape) return <div>No metadata or entity json available.</div>;
 
     // ---------------------------------------------------------------------
     // Helpers

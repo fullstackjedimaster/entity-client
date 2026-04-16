@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useApiFetch } from "@/hooks/useApiFetch";
 
 interface UseSaveEntityConfig {
-    entity: string;
+    entityName: string;
     primaryKey: string;
 }
 
@@ -21,7 +21,7 @@ interface SaveResult {
  *  - Decides create vs update based on presence of primaryKey in payload
  */
 export function useSaveEntity(config: UseSaveEntityConfig) {
-    const { entity, primaryKey } = config;
+    const { entityName, primaryKey } = config;
     const { apiFetch } = useApiFetch();
 
     const [loading, setLoading] = useState(false);
@@ -39,7 +39,7 @@ export function useSaveEntity(config: UseSaveEntityConfig) {
                 method: "POST",
                 body: JSON.stringify({
                     operation,
-                    entity_type: entity,
+                    name: entityName,
                     id,
                     data,
                 }),

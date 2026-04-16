@@ -13,7 +13,7 @@ export type OptionItem = { value: string | number; label: string };
  *  - filter: key/value pairs passed as query params for server-side filtering
  */
 export function useOptions(
-    entity: string,
+    entityName: string,
     valueCol: string = "id",
     labelCol: string = "name",
     filter: Record<string, string | number | null | undefined> = {}
@@ -21,7 +21,7 @@ export function useOptions(
     const { apiFetch } = useApiFetch();
 
     const params = new URLSearchParams();
-    params.set("entity", entity);
+    params.set("entity_name", entityName);
     params.set("value_col", valueCol);
     params.set("label_col", labelCol);
 

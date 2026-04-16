@@ -5,24 +5,24 @@ import FieldObject from './FieldObject';
 
 export interface FieldArrayProps {
     label: string;
-    templateRow: Record<string, unknown>;
+    entityRow: Record<string, unknown>;
     rows: Record<string, unknown>[];
     path: string[];
     updateField: (path: string[], value: unknown) => void;
-    addArrayRow: (path: string[], templateRow: Record<string, unknown>) => void;
+    addArrayRow: (path: string[], entityRow: Record<string, unknown>) => void;
     removeArrayRow: (path: string[], index: number) => void;
 }
 
 export default function FieldArray({
                                        label,
-                                       templateRow,
+                                       entityRow,
                                        rows,
                                        path,
                                        updateField,
                                        addArrayRow,
                                        removeArrayRow,
                                    }: FieldArrayProps) {
-    const columns = Object.keys(templateRow);
+    const columns = Object.keys(entityRow);
 
     return (
         <div className="space-y-2">
@@ -31,7 +31,7 @@ export default function FieldArray({
                 <button
                     type="button"
                     className="px-2 py-1 text-sm bg-green-600 text-white rounded"
-                    onClick={() => addArrayRow(path, templateRow)}
+                    onClick={() => addArrayRow(path, entityRow)}
                 >
                     + Add
                 </button>
@@ -51,7 +51,7 @@ export default function FieldArray({
                     </button>
 
                     <FieldObject
-                        shape={templateRow}
+                        shape={entityRow}
                         data={row}
                         path={[...path, String(index)]}
                         updateField={updateField}

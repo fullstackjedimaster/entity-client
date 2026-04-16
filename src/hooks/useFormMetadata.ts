@@ -12,7 +12,7 @@ export type FieldMeta = {
 };
 
 export type FormMetadata = {
-    entity: string;
+    entityName: string;
     schema: string;
     table: string;
     primaryKey: string;
@@ -24,7 +24,7 @@ export type FormMetadata = {
  * Fetches metadata for a given entity type from the CRUD server.
  * Uses the authenticated apiFetch wrapper (AuthContext).
  */
-export function useFormMetadata(entity?: string) {
+export function useFormMetadata(entityName?: string) {
     const { apiFetch } = useApiFetch();
     const shouldFetch = !!entity;
 
@@ -37,7 +37,7 @@ export function useFormMetadata(entity?: string) {
     };
 
     const { data, error, isLoading, mutate } = useSWR<FormMetadata>(
-        shouldFetch ? `/api/entities/${entity}/form_metadata` : null,
+        shouldFetch ? `/api/entity/${entityName}/form_metadata` : null,
         fetcher
     );
 
