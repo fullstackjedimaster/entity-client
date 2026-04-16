@@ -1,254 +1,54 @@
-// src/components/EntityComponent.tsx
 "use client";
-
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useFormMetadata } from "@/hooks/useFormMetadata";
-import { useEntityJson } from "@/hooks/useEntityJson";
 import { useSaveEntity } from "@/hooks/useSaveEntity";
 import { useHierarchicalOptions } from "@/hooks/useHierarchicalOptions";
-import { useAuthInfo } from "@/hooks/useAuthInfo";
+import { useAuthInfo } from "@/lib/useAuthInfo";
 import { Toaster } from "sonner";
 
 type FormValues = Record<string, any>;
 
-type OptionItem = { value: any; label: string };
-
-type OptionsProviderResult = {
-    options: OptionItem[];
-    loading: boolean;
-    error?: string | null;
-};
-
-type OptionsProviderFn = (params: {
-    entityName: string;
-    field: string;
-    levelIndex: number;
-    selectedValues: Record<string, string | null>;
-}) => OptionsProviderResult;
-
-type EntityComponentProps = {
-    entityName: string;
-
-    /**
-     * Optional Json override.
-     * If provided, this will be used instead of the Json fetched by useEntityJson().
-     * Expected shape:
-     * {
-     *   "<entityName>": { ...structure... }
-     * }
-     */
-    entityJsonOverride?: any;
-
-    /**
-     * Optional metadata override.
-     * If provided, this will be used instead of the metadata fetched by useFormMetadata().
-     */
-    metadata?: any;
-
-    /**
-     * Optional submit handler override.
-     * If provided, EntityComponent will NOT call useSaveEntity()/manage_entity;
-     * instead it will call onSubmit(values).
-     */
-    onSubmit?: (values: any) => Promise<void> | void;
-
-    /**
-     * Optional hierarchical / foreign-key options provider.
-     * If provided, EntityComponent will NOT use useHierarchicalOptions
-     * and will instead call this function for each _hierN field.
-     */
-    optionsProvider?: OptionsProviderFn;
-
-    /**
-     * Optional initial values for edit mode.
-     * When provided, the form will initialize using these values
-     * instead of constructing an empty state from the template/metadata.
-     */
-    initialValues?: FormValues | null;
-};
-
-export default function EntityComponent({
-                                            entityName,
-                                            entityJsonOverride,
-                                            metadata: metadataOverride,
-                                            onSubmit,
-                                            optionsProvider,
-                                            initialValues,
-                                        }: EntityComponentProps) {
-    // ---------------------------------------------------------------------
-    // Metadata & Template: prefer overrides, otherwise use hooks
-    // ---------------------------------------------------------------------
-
-    // If metadataOverride is provided, don't fetch via hook (pass undefined)
-    const entityForMetaHook = metadataOverride ? undefined : entity;
-    const {
-        metadata: fetchedMetadata,
-        isLoading: metaLoadingHook,
-    } = useFormMetadata(entityForMetaHook);
-
-    const metadata = metadataOverride ?? fetchedMetadata;
-    const metaLoading = metadataOverride ? false : metaLoadingHook;
-
-    // If templateOverride is provided, don't fetch via hook (pass undefined)
-    const entityForEntityJsonHook = entityJsonOverride ? undefined : entity;
-    const {
-        entityJson: fetchedEntityJson,
-        loading: entityJsonLoadingHook,
-    } = useEntityJson(entityForEntityJsonHook);
-
-    const effectiveEntityJson = entityJsonOverride ?? fetchedEntityJson;
-    const entityJsonLoading = entityJsonOverride ? false : entityJsonLoadingHook;
-
+export default function EntityComponent({ entity }: { entity: string }) {
+    const { metadata, isLoading } = useFormMetadata(entity);
     const [formValues, setFormValues] = useState<FormValues>({});
     const [addButtonEnabled, setAddButtonEnabled] = useState<Record<string, boolean>>({});
+    const { schema } = useAuthInfo();
 
-    const { schema, isReadOnly } = useAuthInfo();
-
-    // Tracks whether we've already chosen an initial state
-    const [initialized, setInitialized] = useState(false);
-
-    // ---------------------------------------------------------------------
-    // Save logic: prefer onSubmit override, else useSaveEntity (manage_entity)
-    // ---------------------------------------------------------------------
-    const { save: saveToServer, loading: saveLoading } = useSaveEntity({
+    const { save, loading } = useSaveEntity({
         entity,
         primaryKey: metadata?.primaryKey ?? "id",
     });
 
-    const saving = onSubmit ? false : saveLoading;
+    const hierarchyFields = metadata?.fields
+        .map((f) => f.name)
+        .filter((n) => /_hier\d+$/.test(n)) ?? [];
 
-    // ---------------------------------------------------------------------
-    // Hierarchical fields & options
-    // ---------------------------------------------------------------------
-    const hierarchyFields =
-        metadata?.fields
-            ?.map((f: any) => f.name)
-            .filter((n: string) => /_hier\d+$/.test(n)) ?? [];
-
-    // Local state for hierarchy selections when optionsProvider is used
-    const [selectedValues, setSelectedValues] = useState<Record<string, string | null>>({});
-
-    // If an external optionsProvider is given, do NOT fetch via useHierarchicalOptions
-    const defaultHier = useHierarchicalOptions(
-        entityName,
-        optionsProvider ? [] : hierarchyFields, // empty list → no network / no-op
+    const hier = useHierarchicalOptions(
+        entity,
+        hierarchyFields,
         "id",
         "name"
     );
 
-    const hier = optionsProvider
-        ? {
-            hooks: hierarchyFields.map((field: string, index: number) => {
-                const res = optionsProvider({
-                    entityName,
-                    field,
-                    levelIndex: index,
-                    selectedValues,
-                });
-                return {
-                    field,
-                    options: res.options,
-                    isLoading: res.loading,
-                    error: res.error ?? null,
-                };
-            }),
-            onChange: (field: string, value: string | null) => {
-                setSelectedValues((prev) => {
-                    const next: Record<string, string | null> = { ...prev, [field]: value };
-                    const idx = hierarchyFields.indexOf(field);
-                    // clear downstream
-                    for (let i = idx + 1; i < hierarchyFields.length; i++) {
-                        next[hierarchyFields[i]] = null;
-                    }
-                    return next;
-                });
-            },
-        }
-        : defaultHier;
-
-    // ---------------------------------------------------------------------
-    // Determine data shape
-    // ---------------------------------------------------------------------
-
-    const shape = effectiveEntityJson
-        ? effectiveEntityJson[entityName] // template (override or fetched) first
-        : buildShapeFromMetadata(metadata); // fallback shape
-
-    // ---------------------------------------------------------------------
-    // Initial form state: either existing row (edit mode) or blank from shape
-    // ---------------------------------------------------------------------
-    useEffect(() => {
-        if (initialized) return;
-
-        // 1. If we have initialValues (edit mode), prefer those
-        if (initialValues && typeof initialValues === "object") {
-            setFormValues(initialValues);
-            setInitialized(true);
-            return;
-        }
-
-        // 2. Otherwise, if we have a shape, build the default blank state
-        if (shape) {
-            setFormValues(buildInitialState(shape));
-            setInitialized(true);
-        }
-    }, [initialValues, shape, initialized]);
-
-    if (metaLoading || entityJsonLoading) return <div>Loading form schema…</div>;
-    if (!shape) return <div>No metadata or entity json available.</div>;
-
-    // ---------------------------------------------------------------------
-    // Helpers
-    // ---------------------------------------------------------------------
-
-    function buildShapeFromMetadata(meta?: any) {
-        if (!meta?.fields) return null;
-        const obj: any = {};
-        meta.fields.forEach((f: any) => {
-            obj[f.name] = fieldDefaultValue(f.type);
-        });
-        return obj;
-    }
-
-    function fieldDefaultValue(type: string): any {
-        if (type === "boolean") return false;
-        if (type === "number") return 0;
-        return ""; // string fallback
-    }
-
-    function buildInitialState(structure: any): any {
-        if (Array.isArray(structure)) return [];
-        if (typeof structure === "object" && structure !== null) {
-            const out: any = {};
-            for (const [k, v] of Object.entries(structure)) {
-                if (Array.isArray(v)) out[k] = [];
-                else if (typeof v === "object" && v !== null) out[k] = buildInitialState(v);
-                else out[k] = typeof v === "boolean" ? false : "";
-            }
-            return out;
-        }
-        return "";
-    }
+    if (isLoading) return <div>Loading form schema…</div>;
+    if (!metadata) return <div>No metadata found.</div>;
 
     const setNestedValue = (path: string[], value: any) => {
         setFormValues((prev) => {
-            const updated: any = { ...prev };
-            let ref: any = updated;
+            const updated = { ...prev };
+            let ref = updated;
             for (let i = 0; i < path.length - 1; i++) {
                 ref[path[i]] = { ...(ref[path[i]] || {}) };
                 ref = ref[path[i]];
             }
-            ref[path[path.length - 1]] = value;
+            ref[path.at(-1)!] = value;
             return updated;
         });
     };
 
-    const getNestedValue = (path: string[]) =>
-        path.reduce(
-            (acc: any, key: string) =>
-                acc && acc[key] !== undefined ? acc[key] : "",
-            formValues
-        );
+    const getNestedValue = (path: string[]) => {
+        return path.reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : ""), formValues);
+    };
 
     const handleInputChange = (
         path: string[],
@@ -279,172 +79,132 @@ export default function EntityComponent({
         setAddButtonEnabled((prev) => ({ ...prev, [path.join(".")]: allFilled }));
     };
 
-    // ---------------------------------------------------------------------
-    // Renderers
-    // ---------------------------------------------------------------------
-
-    const renderField = (key: string, structure: any, path: string[] = []) => {
+    const renderField = (key: string, value: any, path: string[] = []) => {
         const fullPath = [...path, key];
         const fieldName = fullPath.join(".");
 
-        const value = getNestedValue(fullPath);
-
-        // Arrays
-        if (Array.isArray(structure)) {
-            const rows = value || [{}];
-            const cols = structure[0] || {};
-
+        if (Array.isArray(value)) {
+            const rows = getNestedValue(fullPath) || [{}];
             return (
                 <div key={fieldName}>
                     <h3 className="font-bold">{key.replace(/_/g, " ").toUpperCase()}</h3>
                     <table className="table-auto border border-gray-300 mb-2 w-full text-sm">
                         <thead>
                         <tr>
-                            {Object.keys(cols).map((col) => (
-                                <th key={col} className="px-2 py-1 border border-gray-200">
-                                    {col}
-                                </th>
+                            {Object.keys(value[0] || {}).map((col) => (
+                                <th key={col} className="px-2 py-1 border border-gray-200">{col}</th>
                             ))}
-                            {!isReadOnly && <th>Actions</th>}
+                            <th>Actions</th>
                         </tr>
                         </thead>
                         <tbody>
                         {rows.map((row: any, index: number) => (
                             <tr key={index}>
-                                {Object.keys(cols).map((col) => (
+                                {Object.keys(value[0] || {}).map((col) => (
                                     <td key={col} className="px-2 py-1 border border-gray-200">
                                         <input
                                             type="text"
                                             className="w-full border rounded p-1"
                                             value={row[col] || ""}
                                             onChange={(e) =>
-                                                setNestedValue(
-                                                    [...fullPath, index.toString(), col],
-                                                    e.target.value
-                                                )
+                                                setNestedValue([...fullPath, index.toString(), col], e.target.value)
                                             }
                                             onBlur={() => handleBlurRow(row, fullPath)}
-                                            disabled={saving || isReadOnly}
                                         />
                                     </td>
                                 ))}
-                                {!isReadOnly && (
-                                    <td className="px-2 py-1 text-center">
-                                        {rows.length > 1 && (
-                                            <button
-                                                type="button"
-                                                className="text-red-500"
-                                                onClick={() =>
-                                                    handleDeleteRow(fullPath, index)
-                                                }
-                                            >
-                                                −
-                                            </button>
-                                        )}
-                                    </td>
-                                )}
+                                <td className="px-2 py-1 text-center">
+                                    {rows.length > 1 && (
+                                        <button type="button" className="text-red-500" onClick={() => handleDeleteRow(fullPath, index)}>
+                                            −
+                                        </button>
+                                    )}
+                                </td>
                             </tr>
                         ))}
                         </tbody>
                     </table>
-                    {!isReadOnly && (
-                        <button
-                            type="button"
-                            className="text-green-600 text-sm"
-                            onClick={() => handleAddRow(fullPath)}
-                            disabled={!addButtonEnabled[fieldName] || saving}
-                        >
-                            + Add Row
-                        </button>
-                    )}
+                    <button
+                        type="button"
+                        className="text-green-600 text-sm"
+                        onClick={() => handleAddRow(fullPath)}
+                        disabled={!addButtonEnabled[fieldName]}
+                    >
+                        + Add Row
+                    </button>
                 </div>
             );
         }
 
-        // Objects
-        if (typeof structure === "object" && structure !== null) {
+        if (typeof value === "object" && value !== null) {
             return (
-                <fieldset
-                    key={fieldName}
-                    className="border border-gray-300 p-3 rounded mt-3 space-y-2"
-                >
-                    <legend className="text-sm font-medium">
-                        {key.replace(/_/g, " ")}
-                    </legend>
-                    {Object.entries(structure).map(([childKey, childStruct]) =>
-                        renderField(childKey as string, childStruct, fullPath)
-                    )}
+                <fieldset key={fieldName} className="border border-gray-300 p-3 rounded mt-3 space-y-2">
+                    <legend className="text-sm font-medium">{key.replace(/_/g, " ")}</legend>
+                    {Object.entries(value).map(([k, v]) => renderField(k, v, fullPath))}
                 </fieldset>
             );
         }
 
-        // Boolean
-        if (typeof structure === "boolean") {
+        if (typeof value === "boolean") {
             return (
                 <label key={fieldName} className="flex items-center gap-2">
                     <input
                         type="checkbox"
-                        checked={!!value}
+                        checked={!!getNestedValue(fullPath)}
                         onChange={(e) => handleInputChange(fullPath, e)}
-                        disabled={saving || isReadOnly}
+                        disabled={loading}
                     />
                     {key.replace(/_/g, " ")}
                 </label>
             );
         }
 
-        // Date
         if (
             key.toLowerCase().includes("date") ||
             key.toLowerCase().includes("dob") ||
-            (typeof structure === "string" &&
-                /^\d{4}-\d{2}-\d{2}$/.test(structure))
+            typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)
         ) {
             return (
                 <label key={fieldName} className="block">
                     <span className="font-medium">{key.replace(/_/g, " ")}</span>
                     <input
                         type="date"
-                        value={value != null ? String(value) : ""}
+                        value={String(getNestedValue(fullPath) ?? "")}
                         onChange={(e) => handleInputChange(fullPath, e)}
                         className="w-full border rounded p-1 mt-1"
-                        disabled={saving || isReadOnly}
                     />
                 </label>
             );
         }
 
-        // Number
-        if (typeof structure === "number") {
+        if (typeof value === "number") {
             return (
                 <label key={fieldName} className="block">
                     <span className="font-medium">{key.replace(/_/g, " ")}</span>
                     <input
                         type="number"
-                        value={value != null ? String(value) : ""}
+                        value={String(getNestedValue(fullPath) ?? "")}
                         onChange={(e) => handleInputChange(fullPath, e)}
                         className="w-full border rounded p-1 mt-1"
-                        disabled={saving || isReadOnly}
                     />
                 </label>
             );
         }
 
-        // Cascading dropdowns
         if (hierarchyFields.includes(key)) {
-            const h = (hier as any).hooks.find((h: any) => h.field === key);
+            const h = hier.hooks.find((h) => h.field === key);
             return (
                 <label key={fieldName} className="block">
                     <span className="font-medium">{key.replace(/_/g, " ")}</span>
                     <select
                         name={key}
-                        value={value != null ? String(value) : ""}
-                        onChange={(e) => (hier as any).onChange(key, e.target.value || null)}
+                        value={formValues[key] ?? ""}
+                        onChange={(e) => hier.onChange(key, e.target.value || null)}
                         className="w-full border rounded p-1 mt-1"
-                        disabled={h?.isLoading || saving || isReadOnly}
+                        disabled={h?.isLoading || loading}
                     >
                         <option value="">Select...</option>
-                        {h?.options?.map((opt: OptionItem) => (
+                        {h?.options?.map((opt) => (
                             <option key={opt.value} value={opt.value}>
                                 {opt.label}
                             </option>
@@ -454,73 +214,45 @@ export default function EntityComponent({
             );
         }
 
-        // Default string input
         return (
             <label key={fieldName} className="block">
                 <span className="font-medium">{key.replace(/_/g, " ")}</span>
                 <input
                     type="text"
-                    value={value != null ? String(value) : ""}
+                    value={String(getNestedValue(fullPath) ?? "")}
                     onChange={(e) => handleInputChange(fullPath, e)}
                     className="w-full border rounded p-1 mt-1"
-                    disabled={saving || isReadOnly}
                 />
             </label>
         );
     };
 
-    // ---------------------------------------------------------------------
-    // Submit
-    // ---------------------------------------------------------------------
-
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-
-        // UI-level guard; backend will still enforce auth.
-        if (isReadOnly) {
-            return;
-        }
-
         const fullData = schema ? { ...formValues, __schema: schema } : formValues;
-
-        if (onSubmit) {
-            await onSubmit(fullData);
-        } else {
-            await saveToServer(fullData);
-        }
+        await save(fullData);
     }
-
-    // ---------------------------------------------------------------------
-    // Render Form
-    // ---------------------------------------------------------------------
 
     return (
         <form onSubmit={handleSubmit} className="grid gap-4">
             <Toaster position="bottom-center" richColors />
-            <h2 className="text-lg font-bold">
-                {initialValues ? "Edit" : "New"} {entity}
-            </h2>
+            <h2 className="text-lg font-bold">New {entity}</h2>
 
-            {isReadOnly && (
-                <div className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                    You have read-only access to this entity. Fields are locked and saving is
-                    disabled. Any write attempts will also be rejected by the server.
-                </div>
-            )}
+            {formValues._template
+                ? Object.entries(formValues._template).map(([k, v]) => renderField(k, v))
+                : metadata.fields.map((f) =>
+                    renderField(f.name, f.type === "boolean" ? false : "")
+                )}
 
-            {Object.entries(shape).map(([k, v]) => renderField(k as string, v))}
-
-            {!isReadOnly && (
-                <button
-                    type="submit"
-                    className={`mt-4 px-4 py-2 rounded text-white ${
-                        saving ? "bg-gray-400 cursor-wait" : "bg-blue-600 hover:bg-blue-700"
-                    }`}
-                    disabled={saving}
-                >
-                    {saving ? "Saving..." : "Save"}
-                </button>
-            )}
+            <button
+                type="submit"
+                className={`mt-4 px-4 py-2 rounded text-white ${
+                    loading ? "bg-gray-400 cursor-wait" : "bg-blue-600 hover:bg-blue-700"
+                }`}
+                disabled={loading}
+            >
+                {loading ? "Saving..." : "Save"}
+            </button>
         </form>
     );
 }
