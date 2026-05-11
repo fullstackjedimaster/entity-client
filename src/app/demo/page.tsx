@@ -42,6 +42,28 @@ const LOCAL_EMPLOYEE_METADATA = {
     ],
 };
 
+ALTER TABLE fooco.department
+    ALTER COLUMN company_id TYPE uuid
+    USING NULLIF(company_id, '')::uuid;
+
+ALTER TABLE fooco.department
+    ADD CONSTRAINT department_company_id_fkey
+    FOREIGN KEY (company_id)
+    REFERENCES fooco.company (id)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL;
+
+Simple hierarchy demo JSON:
+
+{
+  "employee": {
+    "company_hier1": "",
+    "department_hier2": "",
+    "first_name": "",
+    "last_name": ""
+  }
+}
+
 export default function EntityDemoPage() {
     const [jsonText, setJsonText] = useState<string>(DEFAULT_JSON);
     const [entityJsonOverride, setEntityJsonOverride] = useState<any | null>(null);
