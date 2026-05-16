@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useFormMetadata } from "@/hooks/useFormMetadata";
 import { useSaveEntity } from "@/hooks/useSaveEntity";
 import { useHierarchicalOptions } from "@/hooks/useHierarchicalOptions";
-import { useAuthInfo } from "@/lib/useAuthInfo";
+import { useAuthInfo } from "@/hooks/useAuthInfo";
 import { Toaster } from "sonner";
 
 type FormValues = Record<string, any>;
@@ -15,7 +15,7 @@ export default function EntityComponent({ entity }: { entity: string }) {
     const { schema } = useAuthInfo();
 
     const { save, loading } = useSaveEntity({
-        entity,
+        entityName: entity,
         primaryKey: metadata?.primaryKey ?? "id",
     });
 
