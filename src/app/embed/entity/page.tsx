@@ -1,23 +1,23 @@
-// 'use client';
-//
-// import React, { Suspense, useEffect, useState } from "react";
-// import { useSearchParams } from "next/navigation";
-// export const dynamic = 'force-dynamic';
-//
-// import EntityComponent from "@/components/EntityComponent/EntityComponent";
-// import { apiFetchRaw } from "@/lib/api";
-//
-// interface ManageResultPayload {
-//     // This mirrors ec-model /manage → adapter.manage_entity -> {"result": <row or list>}
-//     result?: unknown;
-// }
-//
-// interface ManageResponse {
-//     ok: boolean;
-//     result?: ManageResultPayload;
-//     message?: string;
-// }
-//
+'use client';
+
+import React, { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+export const dynamic = 'force-dynamic';
+
+import EntityComponent from "@/components/EntityComponent/EntityComponent";
+import { apiFetchRaw } from "@/lib/api";
+
+interface ManageResultPayload {
+    // This mirrors ec-model /manage → adapter.manage_entity -> {"result": <row or list>}
+    result?: unknown;
+}
+
+interface ManageResponse {
+    ok: boolean;
+    result?: ManageResultPayload;
+    message?: string;
+}
+
 // /**
 //  * Inner component that actually uses useSearchParams.
 //  * Wrapped in <Suspense> by the page component below.
@@ -233,17 +233,17 @@
 //  * Page component that wraps the content in Suspense so Next is happy
 //  * about useSearchParams() bailouts.
 //  */
-// export default function EmbedEntityPage() {
-//     return (
-//         <Suspense
-//             fallback={
-//                 <div className="p-4 text-sm">
-//                     <h1 className="text-lg font-semibold mb-2">Entity form</h1>
-//                     <p className="text-gray-600">Loading…</p>
-//                 </div>
-//             }
-//         >
-//             <EmbedEntityContent />
-//         </Suspense>
-//     );
-// }
+export default function EmbedEntityPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="p-4 text-sm">
+                    <h1 className="text-lg font-semibold mb-2">Entity form</h1>
+                    <p className="text-gray-600">Loading…</p>
+                </div>
+            }
+        >
+            <EmbedEntityContent />
+        </Suspense>
+    );
+}
