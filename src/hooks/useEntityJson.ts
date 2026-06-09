@@ -5,6 +5,7 @@ import { useApiFetch } from "@/hooks/useApiFetch";
 
 export interface EntityJsonState {
     entityName: any | null;
+    entityJson: any | null;
     loading: boolean;
     error: string | null;
 }
@@ -43,13 +44,13 @@ export function useEntityJson(entityName?: string | null): EntityJsonState {
                 if (!cancelled) setLoading(false);
             }
         }
-
+0
         load();
 
         return () => {
             cancelled = true;
         };
-    }, [entityName, apiFetch]);
+    }, [entityName,  apiFetch]);
 
-    return { entityJson, loading, error };
+    return { entityJson,  loading, error };
 }
