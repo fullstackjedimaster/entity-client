@@ -3,7 +3,6 @@
 export { default as EntityComponent } from "./components/EntityComponent/EntityComponent";
 
 export * from "./hooks/useFormMetadata";
-export * from "./hooks/useEntityTemplate";
 export * from "./hooks/useSaveEntity";
 export * from "./hooks/useHierarchicalOptions";
 export * from "./hooks/useAuthInfo";
