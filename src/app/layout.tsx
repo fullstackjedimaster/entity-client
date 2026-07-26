@@ -1,26 +1,31 @@
-import './globals.css';
-import type { Metadata } from 'next';
-import { Roboto } from 'next/font/google';
+// ui-daq/src/app/layout.tsx
+import "@/app/globals.css";
 
-const roboto = Roboto({
-    weight: ['400', '500', '700'],
-    subsets: ['latin'],
-    display: 'swap',
-});
+import type { ReactNode } from "react";
 
-export const metadata: Metadata = {
-    title: 'CRUD Client',
-    description: 'Entity Management App using CRUD Server backend',
+import DockHost from "@/components/dock/DockHost";
+import EmbedHeightReporter from "@/components/EmbedHeightReporter";
+
+
+type RootLayoutProps = {
+    children: ReactNode;
 };
 
 export default function RootLayout({
-                                       children,
-                                   }: {
-    children: React.ReactNode;
-}) {
+    children,
+}: RootLayoutProps) {
     return (
-        <html lang="en" className={roboto.className}>
-        <body>{children}</body>
+        <html lang="en">
+            <body>
+
+                    <div id="entity-client-embed-content">
+                        {children}
+                        <DockHost />
+                    </div>
+
+                    <EmbedHeightReporter />
+
+            </body>
         </html>
     );
 }
