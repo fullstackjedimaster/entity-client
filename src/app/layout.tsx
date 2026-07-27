@@ -19,8 +19,9 @@ export default function RootLayout({
             <body>
 
                     <div id="entity-client-embed-content">
+                          <DockHost />
                         {children}
-                        <DockHost />
+
                     </div>
 
                     <EmbedHeightReporter />
