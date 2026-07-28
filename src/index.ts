@@ -1,6 +1,6 @@
 // entitycore-ui/src/index.ts
 
-export { default as EntityComponent } from "./components/EntityComponent/EntityComponent";
+export { default as EntityComponent } from "./components/EntityComponent";
 
 export * from "./hooks/useFormMetadata";
 export * from "./hooks/useSaveEntity";

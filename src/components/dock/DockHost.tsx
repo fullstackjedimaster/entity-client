@@ -14,7 +14,7 @@ import { settings } from "@/lib/settings";
 const RAG_API_BASE = settings.RAG_API_BASE;
 const DOCK_ORIGIN = settings.DOCK_ORIGIN;
 const FRAME_ID =
-    settings.DOCK_FRAME_ID ?? "daq-dock";
+    settings.DOCK_FRAME_ID ?? "entity-client-dock";
 
 const DEFAULT_DOCK_HEIGHT = 600;
 const MIN_DOCK_HEIGHT = 240;
@@ -22,7 +22,7 @@ const MAX_DOCK_HEIGHT = 5000;
 const DOCK_HEIGHT_CHANGE_THRESHOLD = 8;
 
 const HOST_APP_ID =
-    "iot-wireless-mesh-daq";
+    "entity-client";
 
 const HOST_DEFAULT_DENSITY =
     "compact";

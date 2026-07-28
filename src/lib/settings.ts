@@ -1,11 +1,7 @@
 // /src/lib/settings.ts
 
-export interface AppSettings {
-  API_BASE_URL: string;
-  DEFAULT_JWT: string | null;
-}
 
-export const settings: AppSettings = {
+export const settings = {
   API_BASE_URL:
     process.env.NEXT_PUBLIC_EC_API_BASE_URL ||
     process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -15,6 +11,36 @@ export const settings: AppSettings = {
     process.env.NEXT_PUBLIC_EC_DEFAULT_JWT !== undefined
       ? process.env.NEXT_PUBLIC_EC_DEFAULT_JWT || null
       : null,
+
+  RAG_CORE_BASE:
+    process.env.NEXT_PUBLIC_RAG_CORE_BASE ||
+     "https://ai-core.fullstackjedi.dev",
+
+  RAG_API_BASE:
+    process.env.NEXT_PUBLIC_RAG_API_BASE ||
+     "https://rag.fullstackjedi.dev",
+
+
+  RAG_CLIENT_NAME:
+     process.env.NEXT_PUBLIC_RAG_CLIENT_NAME ||
+      "iot-wireless-mesh-daq",
+
+  DOCK_ORIGIN:
+     process.env.NEXT_PUBLIC_DOCK_ORIGIN ||
+      "https://rag.fullstackjedi.dev",
+
+
+  DOCK_FRAME_ID:
+     process.env.NEXT_PUBLIC_DOCK_FRAME_ID ||
+      "daq-dock",
+
+  EMBED_LOCK_ENABLED:
+      process.env.EMBED_LOCK_ENABLED ||
+      "true",
+
+  EMBED_SECRET:
+      process.env.EMBED_SECRET ||
+      "true",
 };
 
 export default settings;

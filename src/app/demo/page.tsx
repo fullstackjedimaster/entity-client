@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import EntityComponent from "@/components/EntityComponent/EntityComponent";
+import EntityComponent from "@/components/EntityComponent";
 import EmbedHeightReporter from "@/components/EmbedHeightReporter";
 
 const DEFAULT_JSON = `{

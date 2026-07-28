@@ -1,7 +1,7 @@
 // src/app/page.tsx
 "use client";
 
-import EntityComponent from "@/components/EntityComponent/EntityComponent";
+import EntityComponent from "@/components/EntityComponent";
 
 export default function HomePage() {
     return (

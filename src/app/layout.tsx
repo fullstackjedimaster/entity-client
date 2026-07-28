@@ -17,9 +17,9 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body>
-
+                    <DockHost />
                     <div id="entity-client-embed-content">
-                          <DockHost />
+
                         {children}
 
                     </div>
