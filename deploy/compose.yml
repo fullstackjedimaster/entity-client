@@ -3,9 +3,9 @@ services:
     build:
       context: ../
       dockerfile: deploy/docker/entity-client/Dockerfile
-      args:
-        NEXT_PUBLIC_EC_API_BASE_URL: ${NEXT_PUBLIC_EC_API_BASE_URL:-/api}
-        NEXT_PUBLIC_EC_DEFAULT_JWT: ${NEXT_PUBLIC_EC_DEFAULT_JWT:-}
+      env_file:
+        - ./env/postgres.env
+        - ./env/cloud.env
     restart: unless-stopped
 
     environment:
