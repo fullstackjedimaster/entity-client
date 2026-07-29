@@ -23,7 +23,7 @@ export const settings = {
 
   RAG_CLIENT_NAME:
      process.env.NEXT_PUBLIC_RAG_CLIENT_NAME ||
-      "iot-wireless-mesh-daq",
+      "entity-client",
 
   DOCK_ORIGIN:
      process.env.NEXT_PUBLIC_DOCK_ORIGIN ||
@@ -32,7 +32,7 @@ export const settings = {
 
   DOCK_FRAME_ID:
      process.env.NEXT_PUBLIC_DOCK_FRAME_ID ||
-      "daq-dock",
+      "entity-client-dock",
 
   EMBED_LOCK_ENABLED:
       process.env.EMBED_LOCK_ENABLED ||
