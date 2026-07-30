@@ -1,9 +1,8 @@
-// src/app/demo/page.tsx
 "use client";
 
-import React, { useState } from "react";
+import { useMemo, useState } from "react";
 import EntityComponent from "@/components/EntityComponent";
-import EmbedHeightReporter from "@/components/EmbedHeightReporter";
+import type { FormMetadata } from "@/hooks/useFormMetadata";
 
 const DEFAULT_JSON = `{
   "employee": {
@@ -24,107 +23,112 @@ const DEFAULT_JSON = `{
   }
 }`;
 
-// Minimal local metadata to give nicer labels and a primaryKey.
-// This is NOT fetched from ec-model – it's just for the demo.
-const LOCAL_EMPLOYEE_METADATA = {
-    entity: "employee",
+const LOCAL_EMPLOYEE_METADATA: FormMetadata = {
+    entityName: "employee",
     schema: "demo",
     table: "employee",
     primaryKey: "id",
     fields: [
-        { name: "first_name",      label: "First Name",      type: "string",  required: true },
-        { name: "last_name",       label: "Last Name",       type: "string",  required: true },
-        { name: "employee_number", label: "Employee Number", type: "string",  required: false },
-        { name: "age",             label: "Age",             type: "number",  required: false },
-        { name: "start_date",      label: "Start Date",      type: "string",  required: false },
-        { name: "is_active",       label: "Is Active",       type: "boolean", required: false },
-        { name: "addresses",       label: "Addresses",       type: "json",    required: false },
+        { name: "first_name", label: "First Name", type: "string", required: true },
+        { name: "last_name", label: "Last Name", type: "string", required: true },
+        { name: "employee_number", label: "Employee Number", type: "string" },
+        { name: "age", label: "Age", type: "number" },
+        { name: "start_date", label: "Start Date", type: "string" },
+        { name: "is_active", label: "Active Employee", type: "boolean" },
+        { name: "addresses", label: "Addresses", type: "array" },
     ],
 };
 
+type DemoDocument = {
+    employee: Record<string, unknown>;
+};
+
+function parseDemoJson(text: string): DemoDocument {
+    const parsed: unknown = JSON.parse(text);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        throw new Error('The root must be an object containing an "employee" object.');
+    }
+
+    const employee = (parsed as Record<string, unknown>).employee;
+    if (!employee || typeof employee !== "object" || Array.isArray(employee)) {
+        throw new Error('The JSON must contain an "employee" object.');
+    }
+
+    return { employee: employee as Record<string, unknown> };
+}
+
 export default function EntityDemoPage() {
-    const [jsonText, setJsonText] = useState<string>(DEFAULT_JSON);
-    const [entityJsonOverride, setEntityJsonOverride] = useState<any | null>(null);
+    const [jsonText, setJsonText] = useState(DEFAULT_JSON);
+    const [renderedJson, setRenderedJson] = useState<DemoDocument>(() => parseDemoJson(DEFAULT_JSON));
     const [error, setError] = useState<string | null>(null);
+    const [submitted, setSubmitted] = useState<Record<string, unknown> | null>(null);
 
-    function handleRenderClick() {
-        setError(null);
+    const template = useMemo(() => renderedJson.employee, [renderedJson]);
 
+    function renderForm() {
         try {
-            const parsed = JSON.parse(jsonText);
-
-            if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-                throw new Error('Root JSON must be an object like { "employee": { ... } }.');
-            }
-
-            if (!parsed.employee || typeof parsed.employee !== "object") {
-                throw new Error('Demo expects a top-level "employee" key with an object value.');
-            }
-
-            setEntityJsonOverride(parsed);
-        } catch (e: any) {
-            setError(e.message || "Invalid JSON");
-            setEntityJsonOverride(null);
+            setRenderedJson(parseDemoJson(jsonText));
+            setError(null);
+            setSubmitted(null);
+        } catch (caught) {
+            setError(caught instanceof Error ? caught.message : "Invalid JSON.");
         }
     }
 
-    async function handleSubmit(values: any) {
-        // For this demo we just log the values; no server call to ec-model.
-        // eslint-disable-next-line no-console
-        console.log("EntityComponent demo submitted values:", values);
-    }
-
     return (
-        <main className="min-h-screen flex items-center justify-center bg-slate-50 text-gray-800">
-            {/* This reports height to the hosting portfolio iframe */}
-            <EmbedHeightReporter />
-
-            <div className="w-full max-w-5xl p-6 space-y-6">
-                <h1 className="text-2xl font-bold">EntityComponent JSON Demo</h1>
-                <p className="text-sm text-gray-600">
-                    Edit the JSON below and click <strong>Render Form</strong> to see the
-                    real <code className="mx-1">EntityComponent</code> render a dynamic form for the
-                    <strong> "employee"</strong> entity. This demo does not talk to{" "}
-                    <code>ec-model</code>; it just uses the JSON and local metadata.
+        <main className="page-shell">
+            <header className="hero">
+                <p className="eyebrow">Entity Client + Modular RAG</p>
+                <h1>Dynamic Entity Form Demo</h1>
+                <p>
+                    Edit the entity JSON, render it locally, and verify the same generic form component
+                    without depending on the Entity Server API.
                 </p>
+            </header>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                    {/* Left: JSON editor */}
-                    <section className="flex flex-col h-full">
-                        <h2 className="text-lg font-semibold mb-2">Template JSON</h2>
+            <div className="demo-grid">
+                <section className="panel editor-panel">
+                    <div className="panel-heading">
+                        <div>
+                            <p className="eyebrow">Input</p>
+                            <h2>Entity template</h2>
+                        </div>
+                        <span className="status-pill">Local demo</span>
+                    </div>
+
+                    <label className="form-field" htmlFor="entity-json">
+                        <span>Employee JSON</span>
                         <textarea
-                            className="flex-1 w-full border rounded p-2 font-mono text-xs min-h-[260px]"
+                            id="entity-json"
                             value={jsonText}
-                            onChange={(e) => setJsonText(e.target.value)}
+                            onChange={(event) => setJsonText(event.target.value)}
+                            spellCheck={false}
                         />
-                        {error && (
-                            <p className="mt-2 text-xs text-red-600">
-                                {error}
-                            </p>
-                        )}
-                        <button
-                            type="button"
-                            onClick={handleRenderClick}
-                            className="mt-3 inline-flex items-center justify-center px-4 py-2 rounded bg-blue-600 text-white text-sm hover:bg-blue-700"
-                        >
-                            Render Form
-                        </button>
-                    </section>
+                    </label>
 
-                    {/* Right: actual EntityComponent driven by the JSON */}
-                    <section className="border rounded p-4 bg-white shadow-sm">
-                        <h2 className="text-lg font-semibold mb-4">Rendered EntityComponent</h2>
+                    {error ? <p className="form-error">{error}</p> : null}
 
-                            <EntityComponent
-                                entity="employee"
-                            />
-                        : (
-                            <p className="text-sm text-gray-500">
-                                Enter JSON and click <strong>Render Form</strong> to see the form.
-                            </p>
-                        )
-                    </section>
-                </div>
+                    <button className="button button-primary" type="button" onClick={renderForm}>
+                        Render Form
+                    </button>
+                </section>
+
+                <section className="panel">
+                    <EntityComponent
+                        entity="employee"
+                        metadataOverride={LOCAL_EMPLOYEE_METADATA}
+                        templateOverride={template}
+                        submitLabel="Preview Submission"
+                        onSubmitOverride={async (values) => setSubmitted(values)}
+                    />
+
+                    {submitted ? (
+                        <div className="submission-preview">
+                            <p className="eyebrow">Latest submission</p>
+                            <pre>{JSON.stringify(submitted, null, 2)}</pre>
+                        </div>
+                    ) : null}
+                </section>
             </div>
         </main>
     );

@@ -30,10 +30,7 @@ function decodeJwt(token: string): Record<string, unknown> | null {
         const padLen = (4 - (payload.length % 4)) % 4;
         const padded = payload + "=".repeat(padLen);
 
-        const binary =
-            typeof atob === "function"
-                ? atob(padded)
-                : Buffer.from(padded, "base64").toString("binary");
+        const binary = atob(padded);
 
         const json = decodeURIComponent(
             Array.from(binary)

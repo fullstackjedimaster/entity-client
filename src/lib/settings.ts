@@ -35,12 +35,7 @@ export const settings = {
       "entity-client-dock",
 
   EMBED_LOCK_ENABLED:
-      process.env.EMBED_LOCK_ENABLED ||
-      "true",
-
-  EMBED_SECRET:
-      process.env.EMBED_SECRET ||
-      "true",
+      process.env.NEXT_PUBLIC_EMBED_LOCK_ENABLED === "true",
 };
 
 export default settings;

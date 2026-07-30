@@ -8,53 +8,56 @@ interface UseSaveEntityConfig {
     primaryKey: string;
 }
 
-interface SaveResult {
-    success?: boolean;
-    data?: any;
+export interface SaveResult {
+    success: boolean;
+    data?: unknown;
     message?: string;
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
-/**
- * useSaveEntity
- *  - Wraps calls to /api/manage_entity
- *  - Decides create vs update based on presence of primaryKey in payload
- */
-export function useSaveEntity(config: UseSaveEntityConfig) {
-    const { entityName, primaryKey } = config;
+export function useSaveEntity({ entityName, primaryKey }: UseSaveEntityConfig) {
     const { apiFetch } = useApiFetch();
-
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [result, setResult] = useState<SaveResult | null>(null);
 
-    async function save(data: any): Promise<SaveResult> {
+    async function save(data: Record<string, unknown>): Promise<SaveResult> {
         setLoading(true);
         setError(null);
-        try {
-            const id = data?.[primaryKey] ?? null;
-            const operation = id ? "update" : "create";
 
-            const res = await apiFetch("/api/manage_entity", {
+        try {
+            const id = data[primaryKey] ?? null;
+            const operation = id ? "update" : "create";
+            const response = await apiFetch("/manage", {
                 method: "POST",
                 body: JSON.stringify({
                     operation,
-                    name: entityName,
+                    target: entityName,
                     id,
-                    data,
+                    args: data,
                 }),
             });
 
-            if (!res.ok) {
-                throw new Error(`Save failed: ${res.status} ${res.statusText}`);
+            if (!response.ok) {
+                const detail = await response.text().catch(() => "");
+                throw new Error(
+                    `Save failed: ${response.status} ${response.statusText}${detail ? ` — ${detail}` : ""}`,
+                );
             }
 
-            const json = (await res.json()) as SaveResult;
-            setResult(json);
-            return json;
-        } catch (err: any) {
-            setError(err.message || "Unknown error");
-            throw err;
+            const body = (await response.json()) as Record<string, unknown>;
+            const normalized: SaveResult = {
+                ...body,
+                success: Boolean(body.success ?? body.ok),
+                data: body.data ?? body.result,
+                message: typeof body.message === "string" ? body.message : undefined,
+            };
+            setResult(normalized);
+            return normalized;
+        } catch (caught) {
+            const message = caught instanceof Error ? caught.message : "Unknown save error";
+            setError(message);
+            throw caught;
         } finally {
             setLoading(false);
         }

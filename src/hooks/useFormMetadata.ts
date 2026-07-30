@@ -1,50 +1,48 @@
-// src/hooks/useFormMetadata.ts
 "use client";
+
 import useSWR from "swr";
 import { useApiFetch } from "@/hooks/useApiFetch";
 
 export type FieldMeta = {
     name: string;
-    label: string;
+    label?: string;
     type: string;
-    required: boolean;
+    required?: boolean;
     widget?: string;
 };
 
 export type FormMetadata = {
-    entityName: string;
-    schema: string;
-    table: string;
+    entityName?: string;
+    entity?: string;
+    schema?: string;
+    table?: string;
     primaryKey: string;
     fields: FieldMeta[];
 };
 
-/**
- * useFormMetadata(entity)
- * Fetches metadata for a given entity type from the CRUD server.
- * Uses the authenticated apiFetch wrapper (AuthContext).
- */
 export function useFormMetadata(entityName?: string) {
     const { apiFetch } = useApiFetch();
-    const shouldFetch = !!entityName;
 
     const fetcher = async (url: string): Promise<FormMetadata> => {
-        const res = await apiFetch(url);
-        if (!res.ok) {
-            throw new Error(`Failed to load form metadata: ${res.status} ${res.statusText}`);
+        const response = await apiFetch(url);
+        if (!response.ok) {
+            const detail = await response.text().catch(() => "");
+            throw new Error(
+                `Failed to load form metadata: ${response.status} ${response.statusText}${detail ? ` — ${detail}` : ""}`,
+            );
         }
-        return res.json();
+        return response.json() as Promise<FormMetadata>;
     };
 
     const { data, error, isLoading, mutate } = useSWR<FormMetadata>(
-        shouldFetch ? `/entity/${entityName}/form_metadata` : null,
-        fetcher
+        entityName ? `/entity/${encodeURIComponent(entityName)}/form_metadata` : null,
+        fetcher,
     );
 
     return {
         metadata: data,
         isLoading,
-        error,
+        error: error instanceof Error ? error : null,
         refresh: mutate,
     };
 }

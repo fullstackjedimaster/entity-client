@@ -3,7 +3,7 @@
 
 import { useEffect } from "react";
 
-const CONTENT_ROOT_ID = "daq-embed-content";
+const CONTENT_ROOT_ID = "entity-client-embed-content";
 
 const MAX_HEIGHT = 5000;
 const CHANGE_THRESHOLD = 2;
@@ -38,7 +38,7 @@ function measureContentHeight(
         root.getBoundingClientRect();
 
     /*
-     * Measure the explicit DAQ content root only.
+     * Measure the explicit Entity Client content root only.
      *
      * Do not use:
      *   document.body.scrollHeight
@@ -151,8 +151,8 @@ export default function EmbedHeightReporter() {
         }
 
         /*
-         * The outer DAQ iframe should not own a scrollbar.
-         * Its parent resizes it to match #daq-embed-content.
+         * The outer Entity Client iframe should not own a scrollbar.
+         * Its parent resizes it to match #entity-client-embed-content.
          */
         document.documentElement.style.overflowX =
             "hidden";
