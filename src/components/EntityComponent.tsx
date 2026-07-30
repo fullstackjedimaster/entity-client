@@ -6,6 +6,8 @@ import { toast, Toaster } from "sonner";
 import { useFormMetadata, type FormMetadata } from "@/hooks/useFormMetadata";
 import { useSaveEntity } from "@/hooks/useSaveEntity";
 import { useAuthInfo } from "@/hooks/useAuthInfo";
+import { useBroadcastSelectedTarget } from "@/lib/dock/selection";
+import { settings } from "@/lib/settings";
 
 type FormRecord = Record<string, unknown>;
 
@@ -107,6 +109,23 @@ export default function EntityComponent({
         () => (metadata ? buildInitialValues(metadata, templateOverride) : null),
         [metadata, templateOverride],
     );
+
+    const selectedTarget = useMemo(
+        () => ({
+            id: entity,
+            source: settings.HOST_APP_ID,
+            attrs: {
+                entity,
+                schema: metadata?.schema ?? schema ?? "default",
+                primaryKey: metadata?.primaryKey ?? "id",
+                fieldCount: metadata?.fields.length ?? 0,
+                formData: JSON.stringify(formValues),
+            },
+        }),
+        [entity, formValues, metadata, schema],
+    );
+
+    useBroadcastSelectedTarget(selectedTarget);
 
     useEffect(() => {
         if (initialValues) setFormValues(initialValues);

@@ -372,3 +372,26 @@ pre {
         flex-direction: column;
     }
 }
+
+/* Framework-neutral Modular RAG mount. dock-host.js owns the iframe. */
+#rag-dock {
+    display: block;
+    width: min(1180px, 100%);
+    min-height: 0;
+    margin: 0 auto;
+    padding: 0 24px 36px;
+    overflow: hidden;
+}
+
+#rag-dock iframe {
+    display: block;
+    width: 100%;
+    border: 0;
+    background: transparent;
+}
+
+@media (max-width: 620px) {
+    #rag-dock {
+        padding: 0 14px 28px;
+    }
+}
