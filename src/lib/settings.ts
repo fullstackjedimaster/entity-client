@@ -21,7 +21,7 @@ export const settings = {
         'compact',
 
     EMBED_LOCK_ENABLED:
-        process.env.NEXT_PUBLIC_EMBED_LOCK_ENABLED === "true",
+        process.env.NEXT_PUBLIC_EMBED_LOCK_ENABLED,
 } as const;
 
 export default settings;
