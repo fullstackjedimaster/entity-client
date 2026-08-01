@@ -8,21 +8,18 @@ function required(name: string, value: string | undefined): string {
 
 export const settings = {
     API_BASE_URL:
-        process.env.NEXT_PUBLIC_EC_API_BASE_URL ?? "/api",
+        process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api",
     DEFAULT_JWT:
-        process.env.NEXT_PUBLIC_EC_DEFAULT_JWT || null,
-    RAG_DOCK_SCRIPT_URL: required(
-        "NEXT_PUBLIC_RAG_DOCK_SCRIPT_URL",
-        process.env.NEXT_PUBLIC_RAG_DOCK_SCRIPT_URL,
-    ),
-    HOST_APP_ID: required(
-        "NEXT_PUBLIC_HOST_APP_ID",
-        process.env.NEXT_PUBLIC_HOST_APP_ID,
-    ),
-    HOST_DENSITY: required(
-        "NEXT_PUBLIC_HOST_DENSITY",
-        process.env.NEXT_PUBLIC_HOST_DENSITY,
-    ),
+        process.env.NEXT_PUBLIC_DEFAULT_JWT || null,
+    DOCK_SCRIPT_URL:
+        'https://rag.fullstackjedi.dev/dock-host.js',
+
+    HOST_APP_ID:
+        'entity-client',
+
+    HOST_DENSITY:
+        'compact',
+
     EMBED_LOCK_ENABLED:
         process.env.NEXT_PUBLIC_EMBED_LOCK_ENABLED === "true",
 } as const;

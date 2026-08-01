@@ -78,7 +78,8 @@ export default function EntityDemoPage() {
     return (
         <main className="page-shell">
             <header className="hero">
-                <p className="eyebrow">Dynamic Form Engine Demo</p>
+                <p className="eyebrow">Entity Client + Modular RAG</p>
+                <h1>Dynamic Form Engine Demo</h1>
                 <p>
                     Enter JSON that defines an entity and the engine renders its CRUD form with datatype-driven elements including 1-to-many subforms for nested JSON columns.
                 </p>
