@@ -2,22 +2,17 @@
 set -euo pipefail
 
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-ENV_FILE="$BASE_DIR/.env"
-EXAMPLE_FILE="$BASE_DIR/.env.example"
 ENV_DIR="$BASE_DIR/env"
-APP_ENV="$ENV_DIR/entity-client.env"
-APP_EXAMPLE="$ENV_DIR/entity-client.env.example"
+ENV_FILE="$ENV_DIR/entity-client.env"
+EXAMPLE_FILE="$ENV_DIR/entity-client.env.example"
+
+
 
 mkdir -p "$ENV_DIR"
 
 if [[ ! -f "$ENV_FILE" ]]; then
     cp "$EXAMPLE_FILE" "$ENV_FILE"
     echo "Created $ENV_FILE"
-fi
-
-if [[ ! -f "$APP_ENV" ]]; then
-    cp "$APP_EXAMPLE" "$APP_ENV"
-    echo "Created $APP_ENV"
 fi
 
 required=(
@@ -29,14 +24,14 @@ required=(
 )
 
 for name in "${required[@]}"; do
-    if ! grep -qE "^${name}=.+" "$APP_ENV"; then
-        echo "ERROR: ${name} is missing in $APP_ENV" >&2
+    if ! grep -qE "^${name}=.+" "$ENV_FILE"; then
+        echo "ERROR: ${name} is missing in $ENV_FILE" >&2
         exit 1
     fi
 done
 
-chmod 600 "$ENV_FILE" "$APP_ENV"
+chmod 600 "$ENV_FILE"
 
 echo "Environment initialized:"
 echo "  Compose env: $ENV_FILE"
-echo "  App env:     $APP_ENV"
+

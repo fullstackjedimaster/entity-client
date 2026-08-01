@@ -1,11 +1,24 @@
 # .gitignore
-node_modules/
 .next/
 dist/
 build/
 npm-debug.log*
+
+
+# runtime volumes
+data/
+.env
+*.log
+
+# generated env (keep *.env.example committed)
+env/*.env
+
+# editor junk
 .DS_Store
 .idea/
-localhost.pem
-localhost-key.pem
+.vscode/
 
+# node/python noise
+node_modules/
+__pycache__/
+*.pyc
