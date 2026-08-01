@@ -13,6 +13,7 @@ services:
     restart: unless-stopped
     env_file:
       - ./env/entity-client.env
+      - /opt/stacks/portfolio/deploy/shared/env/embed.env
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

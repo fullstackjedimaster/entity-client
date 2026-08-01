@@ -26,7 +26,13 @@ echo "[up] Building + starting entity-client stack"
 docker compose \
   -p "$COMPOSE_PROJECT_NAME" \
   -f "$DEPLOY_DIR"/compose.yml \
-  up -d --build --force-recreate
+  build --no-orphans
+
+echo "[up] Building + starting entity-client stack"
+docker compose \
+  -p "$COMPOSE_PROJECT_NAME" \
+  -f "$DEPLOY_DIR"/compose.yml \
+  up -d
 
 echo "[up] Done"
 
