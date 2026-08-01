@@ -78,11 +78,9 @@ export default function EntityDemoPage() {
     return (
         <main className="page-shell">
             <header className="hero">
-                <p className="eyebrow">Entity Client + Modular RAG</p>
-                <h1>Dynamic Entity Form Demo</h1>
+                <p className="eyebrow">Dynamic Form Engine Demo</p>
                 <p>
-                    Edit the entity JSON, render it locally, and verify the same generic form component
-                    without depending on the Entity Server API.
+                    Enter JSON that defines an entity and the engine renders its CRUD form with datatype-driven elements including 1-to-many subforms for nested JSON columns.
                 </p>
             </header>
 
@@ -90,14 +88,13 @@ export default function EntityDemoPage() {
                 <section className="panel editor-panel">
                     <div className="panel-heading">
                         <div>
-                            <p className="eyebrow">Input</p>
-                            <h2>Entity template</h2>
+                            <p className="eyebrow">Enter JSON for an entity:</p>
+
                         </div>
-                        <span className="status-pill">Local demo</span>
+
                     </div>
 
                     <label className="form-field" htmlFor="entity-json">
-                        <span>Employee JSON</span>
                         <textarea
                             id="entity-json"
                             value={jsonText}
