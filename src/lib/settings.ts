@@ -1,11 +1,3 @@
-function required(name: string, value: string | undefined): string {
-    if (!value) {
-        throw new Error(`Missing required environment variable: ${name}`);
-    }
-
-    return value;
-}
-
 export const settings = {
     API_BASE_URL:
         process.env.NEXT_PUBLIC_API_BASE_URL ?? "/api",
@@ -19,9 +11,6 @@ export const settings = {
 
     HOST_DENSITY:
         'compact',
-
-    EMBED_LOCK_ENABLED:
-        process.env.NEXT_PUBLIC_EMBED_LOCK_ENABLED === "false",
 } as const;
 
 export default settings;

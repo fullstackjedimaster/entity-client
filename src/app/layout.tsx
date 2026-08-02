@@ -17,12 +17,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <html lang="en">
             <body>
                 <EmbedTokenListener />
-
                 <div id="entity-client-embed-content">
                     {children}
                     <div id="rag-dock" />
                 </div>
-
                 <script
                     src={settings.DOCK_SCRIPT_URL}
                     data-target="#rag-dock"
@@ -30,8 +28,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                     data-density={settings.HOST_DENSITY}
                     defer
                 />
-
-                <EmbedHeightReporter />
+                <EmbedHeightReporter contentRootId="entity-client-embed-content" />
             </body>
         </html>
     );
