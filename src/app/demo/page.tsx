@@ -77,11 +77,11 @@ export default function EntityDemoPage() {
 
     return (
         <main className="page-shell">
-            <header className="hero">
-                <p>
-                    Enter JSON and click submit to render form:
-                </p>
-            </header>
+            {/*<header className="hero">*/}
+            {/*    <p>*/}
+            {/*        Enter JSON and click submit to render form:*/}
+            {/*    </p>*/}
+            {/*</header>*/}
 
             <div className="demo-grid">
                 <section className="panel editor-panel">
