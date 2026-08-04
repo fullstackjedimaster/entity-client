@@ -19,8 +19,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <body>
                 <EmbedTokenListener />
                 <div id="entity-client-embed-content">
-                    {children}
                     <div id="rag-dock" />
+                    {children}
+
                 </div>
                 <RagDockLoader
                     scriptUrl={settings.DOCK_SCRIPT_URL}
