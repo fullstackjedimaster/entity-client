@@ -78,9 +78,8 @@ export default function EntityDemoPage() {
     return (
         <main className="page-shell">
             <header className="hero">
-                <h1>Dynamic Form Engine Demo</h1>
                 <p>
-                    Dynamically render a form from datatype-driven elements including 1-to-many subforms for nested JSON columns.
+                    Enter JSON and click submit to render form:
                 </p>
             </header>
 
@@ -88,7 +87,7 @@ export default function EntityDemoPage() {
                 <section className="panel editor-panel">
                     <div className="panel-heading">
                         <div>
-                            <p className="eyebrow">Enter JSON for an entity:</p>
+                            <p className="eyebrow">Entity JSON:</p>
 
                         </div>
 
