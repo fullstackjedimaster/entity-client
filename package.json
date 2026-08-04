@@ -29,7 +29,8 @@
     "react-numeric-input": "^2.2.3",
     "sonner": "^2.0.7",
     "swr": "^2.2.5",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "@fsj/demo-kit": "file:packages/demo-kit"
   },
   "devDependencies": {
     "@types/node": "^20.14.9",

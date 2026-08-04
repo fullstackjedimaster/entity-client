@@ -5,6 +5,7 @@ const API_PROXY_TARGET =
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ["@fsj/demo-kit"],
   output: "standalone",
 
   webpack: (config) => {
