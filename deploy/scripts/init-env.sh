@@ -10,10 +10,16 @@ EXAMPLE_FILE="$ENV_DIR/entity-client.env.example"
 
 mkdir -p "$ENV_DIR"
 
-if [[ ! -f "$ENV_FILE" ]]; then
-    cp "$EXAMPLE_FILE" "$ENV_FILE"
-    echo "Created $ENV_FILE"
-fi
+
+cp "$EXAMPLE_FILE" "$ENV_FILE"
+echo "Created $ENV_FILE"
+
+
+SHARED_PORTFOLIO_ENV_DIR="/opt/stacks/portfolio/deploy/shared/env"
+  local example="${SHARED_PORTFOLIO_ENV_DIR}/shared.env"
+  local target="${ENV_DIR}/shared.env"
+  cp "$example" "$target"
+
 
 required=(
     API_PROXY_TARGET
